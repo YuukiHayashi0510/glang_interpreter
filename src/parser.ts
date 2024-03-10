@@ -1,75 +1,100 @@
 import type { AST } from "../types/ast";
 import type { Token } from "../types/token";
 
-export const runParse = (tokens: Token[]): AST => {
-  let position = 0;
+class Parser {
+  private tokens: Token[];
+  private position: number;
 
-  const term2 = (): AST => {
-    let current = term1();
+  constructor(tokens: Token[]) {
+    this.tokens = tokens;
+    this.position = 0;
+  }
 
-    while (position < tokens.length) {
-      const token = tokens[position];
+  public runParse(): AST {
+    return this.term2();
+  }
+
+  private getToken(): Token {
+    if (this.position >= this.tokens.length)
+      throw new Error("Unexpected end of input");
+
+    return this.tokens[this.position];
+  }
+
+  private term2(): AST {
+    let current = this.term1();
+
+    while (this.position < this.tokens.length) {
+      const token = this.getToken();
       if (token.type === "plus" || token.type === "minus") {
-        position++;
+        this.position++;
         current = {
           type: "binaryOperator",
           operator: token.type,
           left: current,
-          right: number(),
+          right: this.term1(),
         };
       } else break;
     }
 
     return current;
-  };
+  }
 
-  const term1 = (): AST => {
-    let current = term0();
+  private term1(): AST {
+    let current = this.term0();
 
-    while (position < tokens.length) {
-      const token = tokens[position];
+    while (this.position < this.tokens.length) {
+      const token = this.getToken();
       if (token.type === "multi" || token.type === "div") {
-        position++;
+        this.position++;
         current = {
           type: "binaryOperator",
           operator: token.type,
           left: current,
-          right: term0(),
+          right: this.term0(),
         };
       } else break;
     }
     return current;
-  };
+  }
 
-  const term0 = (): AST => {
-    const token = tokens[position];
+  private term0(): AST {
+    const token = this.getToken();
     if (token.type === "number") {
-      position++;
+      this.position++;
       return { type: "number", value: token.number! };
     }
 
     if (token.type === "lparen") {
-      position++;
-      const exp = term2();
-      if (tokens[position].type !== "rparen") {
+      this.position++;
+      const exp = this.term2();
+      if (this.tokens[this.position].type !== "rparen") {
         throw new Error("Expected )");
       }
-      position++;
+      this.position++;
       return exp;
     }
 
-    throw new Error("Expected number or '('");
-  };
+    if (token.type === "minus") {
+      this.position++;
+      const num = this.expectNumber();
 
-  const number = (): AST => {
-    const token = tokens[position];
-    if (token.type === "number") {
-      position++;
-      return { type: "number", value: token.number! };
+      return {
+        type: "number",
+        value: -num!,
+      };
     }
 
-    throw new Error("Expected number");
-  };
+    throw new Error("Expected number or '('");
+  }
 
-  return term2();
-};
+  private expectNumber(): AST {
+    const token = this.getToken();
+    if (token.type !== "number") throw new Error("Expected number");
+
+    this.position++;
+    return { type: "number", value: token.number! };
+  }
+}
+
+export default Parser;
