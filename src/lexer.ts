@@ -1,15 +1,5 @@
+import type { Token } from "../types/token";
 import { LiteralConsumeHelper, LiteralHelper } from "./literal";
-
-interface OperatorToken {
-  type: "plus" | "minus" | "multi" | "div";
-}
-
-interface NumberToken {
-  type: "number";
-  number: number;
-}
-
-type Token = OperatorToken | NumberToken;
 
 export const runLexer = (input: string): Token[] => {
   const tokens: Token[] = [];
@@ -30,6 +20,7 @@ export const runLexer = (input: string): Token[] => {
       continue;
     }
 
+    // 演算子
     if (input[position] === "+") {
       tokens.push({ type: "plus" });
       position++;
@@ -51,7 +42,19 @@ export const runLexer = (input: string): Token[] => {
       continue;
     }
 
-    throw new Error("Invalid character: " + input[position]);
+    // 括弧
+    if (input[position] === "(") {
+      tokens.push({ type: "lparen" });
+      position++;
+      continue;
+    }
+    if (input[position] === ")") {
+      tokens.push({ type: "rparen" });
+      position++;
+      continue;
+    }
+
+    throw new Error(`Invalid character: ${input[position]}`);
   }
 
   return tokens;
