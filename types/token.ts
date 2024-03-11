@@ -1,8 +1,10 @@
-interface OperatorToken {
+import type { UnionFromTypeArray } from "./utility";
+
+export interface OperatorToken {
   type: "plus" | "minus" | "multi" | "div";
 }
 
-interface NumberToken {
+export interface NumberToken {
   type: "number";
   number: number;
 }
@@ -11,4 +13,36 @@ interface ParenthesisToken {
   type: "lparen" | "rparen";
 }
 
-export type Token = OperatorToken | NumberToken | ParenthesisToken;
+export interface VariableToken {
+  type: "variable";
+  variable: string;
+}
+
+interface AssignmentToken {
+  type: "assignment";
+}
+
+interface FunctionToken {
+  type: "def";
+}
+
+interface CommaToken {
+  type: "comma";
+}
+
+interface EndToken {
+  type: "semicolon";
+}
+
+export type Token = UnionFromTypeArray<
+  [
+    OperatorToken,
+    NumberToken,
+    ParenthesisToken,
+    VariableToken,
+    AssignmentToken,
+    FunctionToken,
+    CommaToken,
+    EndToken
+  ]
+>;
