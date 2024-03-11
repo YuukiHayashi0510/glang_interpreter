@@ -1,4 +1,3 @@
-import { aR } from "vitest/dist/reporters-MmQN-57K.js";
 import type { Expression, GLang, Statement } from "../types/lang";
 import type { Token } from "../types/token";
 
@@ -149,7 +148,7 @@ class Parser {
       };
     }
 
-    throw new Error("Expected number or '('");
+    throw new Error("Expected expression");
   }
 
   private getToken(): Token {

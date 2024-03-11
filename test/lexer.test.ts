@@ -1,4 +1,4 @@
-import { runLexer } from "../src/lexer";
+import Lexer from "../src/lexer";
 import { it, expect, describe } from "vitest";
 
 const tests = [
@@ -27,7 +27,7 @@ const tests = [
 describe("lexer", () => {
   for (const test of tests) {
     it(`should return ${JSON.stringify(test.want)} for ${test.input}`, () => {
-      expect(runLexer(test.input)).toEqual(test.want);
+      expect(new Lexer(test.input).run()).toEqual(test.want);
     });
   }
 });
